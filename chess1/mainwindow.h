@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 
+
 namespace Ui {
 class MainWindow;
 }
@@ -14,10 +15,20 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void paintEvent(QPaintEvent *e);
+    void mouseMoveEvent(QMouseEvent *);
+    //void mouseReleaseEvent(QMouseEvent *);
+
 
 private:
     Ui::MainWindow *ui;
-    void paintEvent(QPaintEvent *e);
+    int rowpos;//行
+    int listpos;//列
+    //gamestatics *game;
+    void initGame();
+
+
+
 };
 
 #endif // MAINWINDOW_H

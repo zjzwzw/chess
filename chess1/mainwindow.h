@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include"gamestatics.h"
 
 
 namespace Ui {
@@ -17,14 +18,15 @@ public:
     ~MainWindow();
     void paintEvent(QPaintEvent *e);
     void mouseMoveEvent(QMouseEvent *);
-    //void mouseReleaseEvent(QMouseEvent *);
+    void mouseReleaseEvent(QMouseEvent *);
+
 
 
 private:
     Ui::MainWindow *ui;
     int rowpos;//行
     int listpos;//列
-    //gamestatics *game;
+    gamestatics *game;
     void initGame();
 
 

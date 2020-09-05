@@ -7,6 +7,9 @@
 #include "gamestatics.h"
 #include <QMessageBox>
 #include <QSound>
+#include <QPushButton>
+#include <QString>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -54,7 +57,7 @@ void MainWindow::paintEvent(QPaintEvent *e)
         painter.drawLine(Margin_+BlockSize*i,Margin_,Margin_+BlockSize*i,height()-Margin_);// 竖线
         painter.drawLine(Margin_,Margin_+BlockSize*i,width()-Margin_,Margin_+BlockSize*i);//横线
     }
-    //绘制圆点
+    //绘制圆点,白棋白点，黑棋黑点
     if(game->player==1)
     {
         brush.setColor(Qt::black);
@@ -135,13 +138,15 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                      game->player=0;
                      game->gameMap[x][y]=1;
                      update();
-                     //QSound::play();
+                     QSound::play("://source/sound.mp3");
+
                 }
             else if (game->player==0)
                 {
                     game->player=1;
                     game->gameMap[x][y]=-1;
                     update();
+                    QSound::play("://source/sound.mp3");
 
                 }
             if(game->iswin(x,y))
@@ -150,11 +155,124 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                 setEnabled(false);
                 if(game->player==1)
 
-                QMessageBox::information(this,"win","白棋胜利",QMessageBox::Retry|QMessageBox::Close);
+                {
+                    QPushButton *retry=new QPushButton("返回主菜单");
+                    QPushButton *close=new QPushButton("退出游戏");
+                    QMessageBox *box = new QMessageBox;
+
+                    box->setWindowTitle("win");
+                    box->setText("白棋胜利");
+                    box->addButton(retry,QMessageBox::AcceptRole);//枚举类型
+                    box->addButton(close,QMessageBox::RejectRole);
+                    box->show();
+                    box->exec();//等待用户操作
+                    if(box->clickedButton()==close)
+                    {
+                        this->close();
+                    }
+                    else
+                    {
+
+                    }
+                }
                 else if (game->player==0)
-                    QMessageBox::information(this,"win","黑棋胜利",QMessageBox::Retry|QMessageBox::Close);
+                {
+                    QPushButton *retry=new QPushButton("返回主菜单");
+                    QPushButton *close=new QPushButton("退出游戏");
+                    QMessageBox *box = new QMessageBox;
+
+                    box->setWindowTitle("win");
+                    box->setText("黑棋胜利");
+                    box->addButton(retry,QMessageBox::AcceptRole);//枚举类型
+                    box->addButton(close,QMessageBox::RejectRole);
+                    box->show();
+                    box->exec();//等待用户操作
+                    if(box->clickedButton()==close)
+                    {
+                        this->close();
+                    }
+                    else
+                    {
+
+                    }
+                }
+                game->gameover=0;
 
             }
+            if(game->isfive(x,y)==1&&game->player==0&&game->gameover==1)
+            {
+                update();
+                setEnabled(false);
+                {
+                    QPushButton *retry=new QPushButton("返回主菜单");
+                    QPushButton *close=new QPushButton("退出游戏");
+                    QMessageBox *box = new QMessageBox;
+
+                    box->setWindowTitle("黑棋出局");
+                    box->setText("黑棋违反规则五五禁手");
+                    box->addButton(retry,QMessageBox::AcceptRole);//枚举类型
+                    box->addButton(close,QMessageBox::RejectRole);
+                    box->show();
+                    box->exec();//等待用户操作
+                    if(box->clickedButton()==close)
+                    {
+                        this->close();
+                    }
+                    else
+                    {
+
+                    }
+                }
+
+            }
+            if(game->isfour(x,y)==1&&game->player==0&&game->gameover==1&&game->isfive(x,y)==0)
+            {
+                update();
+                setEnabled(false);
+                {
+                    QPushButton *retry=new QPushButton("返回主菜单");
+                    QPushButton *close=new QPushButton("退出游戏");
+                    QMessageBox *box = new QMessageBox;
+
+                    box->setWindowTitle("黑棋出局");
+                    box->setText("黑棋违反规则四四禁手");
+                    box->addButton(retry,QMessageBox::AcceptRole);//枚举类型
+                    box->addButton(close,QMessageBox::RejectRole);
+                    box->show();
+                    box->exec();//等待用户操作
+                    if(box->clickedButton()==close)
+                    {
+                        this->close();
+                    }
+                    else
+                    {
+
+                    }
+                }
+                if(game->isDeadGame()==true)
+                {
+                    QPushButton *retry=new QPushButton("返回主菜单");
+                    QPushButton *close=new QPushButton("退出游戏");
+                    QMessageBox *box = new QMessageBox;
+
+                    box->setWindowTitle("draw");
+                    box->setText("平局！");
+                    box->addButton(retry,QMessageBox::AcceptRole);//枚举类型
+                    box->addButton(close,QMessageBox::RejectRole);
+                    box->show();
+                    box->exec();//等待用户操作
+                    if(box->clickedButton()==close)
+                    {
+                        this->close();
+                    }
+                    else
+                    {
+
+                    }
+                }
+
+            }
+
 
         }
 }

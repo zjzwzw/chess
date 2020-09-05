@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>source/sound.mp3</file>
+        <file>source/timg.jpg</file>
+    </qresource>
+</RCC>

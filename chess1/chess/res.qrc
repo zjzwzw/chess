@@ -1,5 +1,12 @@
 <RCC>
     <qresource prefix="/">
         <file>sound.wav</file>
+        <file>qi.jpg</file>
+        <file>pt1.png</file>
+        <file>pt1_.png</file>
+        <file>pt1__.png</file>
+        <file>pt2.png</file>
+        <file>pt2_.png</file>
+        <file>pt2__.png</file>
     </qresource>
 </RCC>

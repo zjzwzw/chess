@@ -1,5 +1,7 @@
 #include "gamestatics.h"
 #include "config.h"
+
+
 int gamestatics::iswin(int x, int y)
 {
     return f1(x,y)||f2(x,y)||f3(x,y)||f4(x,y);

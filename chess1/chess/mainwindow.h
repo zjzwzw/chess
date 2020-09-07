@@ -19,17 +19,20 @@ public:
     void paintEvent(QPaintEvent *e);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    void calculatescore ();
 
 private slots:
-    void receive();
+    void receive1();
+    void receive0();
 
 private:
     Ui::MainWindow *ui;
     int rowpos;//行
     int listpos;//列
     gamestatics *game;
+    int maxbotrow;
+    int maxbotlist;
     void initGame();
-
 signals:
     void signal();
 

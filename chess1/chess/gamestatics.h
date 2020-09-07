@@ -12,6 +12,7 @@ public:
     int scoreMap[BoardSize+1][BoardSize+1];//AI下棋分数统计
     bool player=1;//1黑.0白
     bool gameover=1;//游戏是否结束
+    bool gametype;//游戏模式，1为人人，0为人机
 
     int iswin(int x,int y);
     int isfive(int x,int y);

@@ -35,6 +35,7 @@ void MainWindow::initGame()
         for(int j= 0 ;j<BoardSize+1;j++)
         {
             game->gameMap[i][j]=0;
+            game->scoreMap[i][j]=0;
         }
     game->player=1;//先手黑棋
 
@@ -134,7 +135,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
     int y=(listpos-Margin_)/BlockSize;
     if(game->gameMap[x][y]==0)
         {
-            if(game->player==1)
+            if(game->player==1&&game->gametype==1)
                 {
                      game->player=0;
                      game->gameMap[x][y]=1;
@@ -142,14 +143,28 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                      QSound::play("://sound.wav");
 
                 }
-            else if (game->player==0)
+            else if (game->player==0&&game->gametype==1)
                 {
                     game->player=1;
                     game->gameMap[x][y]=-1;
                     update();
                     QSound::play("://sound.wav");
 
+
                 }
+            else if (game->player==1&&game->gametype==0)
+            {
+                game->player=0;
+                game->gameMap[x][y]=1;
+                update();
+                QSound::play("://sound.wav");
+                switch (game->iswin(x,y))
+                {
+                     case 1:  break;
+                case 0: {calculatescore();x=maxbotrow;y=maxbotlist;break;}
+
+                }
+            }
             if(game->iswin(x,y))
             {
                 update();
@@ -262,7 +277,6 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                         emit signal();
                         initGame();
                         setEnabled(true);
-
                     }
                 }
                 if(game->isDeadGame()==true)
@@ -287,19 +301,151 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                         emit signal();
                         initGame();
                         setEnabled(true);
-
                     }
                 }
 
             }
-
-
     }
 }
 
-void MainWindow::receive()
+void MainWindow::calculatescore()
+{
+
+        for(int row=0;row<BoardSize+1;row++)
+            for(int list=0;list<BoardSize+1;list++)
+            {
+                if(game->gameMap[row][list]==0)
+                {
+                    for(int y=-1;y<=1;y++)
+                        for(int x=-1;x<=1;x++)
+                        {
+                            int personNum=0;
+                            int botNum=0;
+                            int emptyNum=0;
+                            if(!(y==0&&x==0))
+                            {
+                                for(int i=1;i<6;i++)
+                                    if(row+i*x>0&&row+i*x<BoardSize+1&&
+                                            list+i*y>0&&list+i*y<BoardSize+1&&
+                                            game->gameMap[row+i*x][list+i*y]==1)
+                                    {
+                                        personNum++;
+                                    }
+                                    else if (row+i*x>0&&row+i*x<BoardSize+1&&
+                                             list+i*y>0&&list+i*y<BoardSize+1&&
+                                             game->gameMap[row+i*x][list+i*y]==0)
+                                    {
+                                        emptyNum++;
+                                        break;
+
+                                    }
+                                    else {
+                                        break;
+                                    }
+                                if(personNum==1)
+                                    game->scoreMap[row][list]+=5;
+                                else if (personNum==2)
+                                {
+                                    if(emptyNum==1)
+                                     game->scoreMap[row][list]+=15;
+                                    game->scoreMap[row][list]+=10;
+                                }
+                                else if (personNum==3)
+                                {
+                                    if(emptyNum==1)
+                                        game->scoreMap[row][list]+=25;
+                                    game->scoreMap[row][list]+=20;
+                                }
+                                else if (personNum==4)
+                                {
+                                    if(emptyNum==1)
+                                        game->scoreMap[row][list]+=50;
+                                    game->scoreMap[row][list]+=40;
+
+                                }
+                                else if(personNum==5)
+                                    game->scoreMap[row][list]+=5000;
+                             emptyNum=0;
+                             for(int i=1;i<6;i++)
+                                 if(row+i*x>0&&row+i*x<BoardSize+1&&
+                                         list+i*y>0&&list+i*y<BoardSize+1&&
+                                         game->gameMap[row+i*x][list+i*y]==-1)
+                                 {
+                                     botNum++;
+                                 }
+                                 else if (row+i*x>0&&row+i*x<BoardSize+1&&
+                                          list+i*y>0&&list+i*y<BoardSize+1&&
+                                          game->gameMap[row+i*x][list+i*y]==0)
+                                 {
+                                     emptyNum++;
+                                     break;
+
+                                 }
+                                 else {
+                                     break;
+                                 }
+                             if(botNum==0)
+                                 game->scoreMap[row][list]+=5;
+                             else if (botNum==1)
+                             {
+                                 game->scoreMap[row][list]+=10;
+                             }
+                             else if (botNum==2)
+                             {
+                                 if(emptyNum==1)
+                                     game->scoreMap[row][list]+=20;
+                                 game->scoreMap[row][list]+=15;
+
+                             }
+                             else if (botNum==3)
+                             {
+                                if(emptyNum==1)
+                                     game->scoreMap[row][list]+=35;
+                                game->scoreMap[row][list]+=30;
+
+                             }
+                             else if(botNum==4)
+                             {
+                                 if(emptyNum==1)
+                                     game->scoreMap[row][list]+=70;
+                                 game->scoreMap[row][list]+=50;
+
+                             }
+                             else if(botNum==5)
+                                 game->scoreMap[row][list]+=100000;
+                            }
+
+                        }
+                }
+            }
+        maxbotrow=0;
+        maxbotlist=0;
+        for(int i=0;i<BoardSize+1;i++)
+            for(int j=0;j<BoardSize+1;j++)
+            {
+                if(game->gameMap[i][j]==0)
+                {
+                if(game->scoreMap[i][j]>game->scoreMap[maxbotrow][maxbotlist])
+                {
+                    maxbotrow=i;
+                    maxbotlist=j;
+                }
+                }
+            }
+        game->gameMap[maxbotrow][maxbotlist]=-1;
+        game->player=1;
+}
+
+void MainWindow::receive1()
 {
     this->show();
+    game->gametype=1;
+}
+
+void MainWindow::receive0()
+{
+    this->show();
+    game->gametype=0;
 }
 
 

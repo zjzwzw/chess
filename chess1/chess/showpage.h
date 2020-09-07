@@ -15,7 +15,7 @@ class showpage : public QDialog
 public:
     explicit showpage(QWidget *parent = nullptr);
     ~showpage();
-    bool gametype;//游戏模式，1为人人，0为人机
+
 
 private slots:
     void on_pvp_clicked();
@@ -25,7 +25,8 @@ private slots:
     void reshow();
 
 signals:
-    void showmain();
+    void showmain1();
+    void showmain0();
 
 private:
     Ui::showpage *ui;

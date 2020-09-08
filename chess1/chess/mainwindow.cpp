@@ -9,7 +9,9 @@
 #include <QSound>
 #include <QPushButton>
 #include <QString>
-#include <QDebug>
+#include <QTimer>
+#include <time.h>
+#include <stdlib.h>
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -17,7 +19,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    setMouseTracking(true);
+    setMouseTracking(true);//鼠标追踪设置
     setFixedSize(Margin_*2 + BlockSize *BoardSize,Margin_*2 + BlockSize *BoardSize);
     setWindowTitle("六子棋");
     initGame();
@@ -31,7 +33,7 @@ MainWindow::~MainWindow()
 void MainWindow::initGame()
 {
     game = new gamestatics;//创建新游戏数据
-    for(int i=0;i<BoardSize+1;i++)//初始化棋盘数组
+    for(int i=0;i<BoardSize+1;i++)//初始化棋盘数组.Ai得分数组
         for(int j= 0 ;j<BoardSize+1;j++)
         {
             game->gameMap[i][j]=0;
@@ -73,6 +75,7 @@ void MainWindow::paintEvent(QPaintEvent *e)
         painter.drawEllipse(rowpos-5,listpos-5,10,10);
     }
 
+    //绘制棋子
     for(int i=0;i<BoardSize+1;i++)
         for(int j=0;j<BoardSize+1;j++)
         {
@@ -98,6 +101,8 @@ void MainWindow::paintEvent(QPaintEvent *e)
 }
 void MainWindow::mouseMoveEvent(QMouseEvent *e)
 {
+    //实现鼠标和十字交叉处模糊距离的判断
+
     int x=e->x();
     int y=e->y();
 
@@ -131,6 +136,8 @@ void MainWindow::mouseMoveEvent(QMouseEvent *e)
 
 void MainWindow::mouseReleaseEvent(QMouseEvent *e)
 {
+    row=(rowpos-Margin_)/BlockSize;
+    list=(listpos-Margin_)/BlockSize;
     int x=(rowpos-Margin_)/BlockSize;
     int y=(listpos-Margin_)/BlockSize;
     if(game->gameMap[x][y]==0)
@@ -158,10 +165,12 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                 game->gameMap[x][y]=1;
                 update();
                 QSound::play("://sound.wav");
+                //黑棋赢了就不再让人机下棋，否则继续
                 switch (game->iswin(x,y))
                 {
                      case 1:  break;
-                case 0: {calculatescore();x=maxbotrow;y=maxbotlist;break;}
+                case 0: {
+                    calculatescore();x=maxbotrow;y=maxbotlist;update();break;}
 
                 }
             }
@@ -213,6 +222,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                     }
                     else
                     {
+                        delete  game;
                         this->close();
                         emit signal();
                         initGame();
@@ -243,6 +253,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                     }
                     else
                     {
+                        delete  game;
                         this->close();
                         emit signal();
                         initGame();
@@ -273,6 +284,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                     }
                     else
                     {
+                        delete  game;
                         this->close();
                         emit signal();
                         initGame();
@@ -297,6 +309,7 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                     }
                     else
                     {
+                        delete  game;
                         this->close();
                         emit signal();
                         initGame();
@@ -359,8 +372,8 @@ void MainWindow::calculatescore()
                                 else if (personNum==4)
                                 {
                                     if(emptyNum==1)
-                                        game->scoreMap[row][list]+=50;
-                                    game->scoreMap[row][list]+=40;
+                                        game->scoreMap[row][list]+=150;
+                                    game->scoreMap[row][list]+=50;
 
                                 }
                                 else if(personNum==5)
@@ -420,6 +433,7 @@ void MainWindow::calculatescore()
             }
         maxbotrow=0;
         maxbotlist=0;
+        //std::vector<std::pair<int,int>> maxpoints;
         for(int i=0;i<BoardSize+1;i++)
             for(int j=0;j<BoardSize+1;j++)
             {
@@ -427,11 +441,22 @@ void MainWindow::calculatescore()
                 {
                 if(game->scoreMap[i][j]>game->scoreMap[maxbotrow][maxbotlist])
                 {
+                   // maxpoints.clear();
                     maxbotrow=i;
                     maxbotlist=j;
+                    //maxpoints.push_back(std::make_pair(maxbotrow,maxbotlist));
+                }
+                else if(game->scoreMap[i][j]==game->scoreMap[maxbotrow][maxbotlist])
+                {
+                    //maxpoints.push_back(std::make_pair(i,j));
                 }
                 }
             }
+       // srand((unsigned)time(0));
+       // int index=rand()%maxpoints.size();
+        //std::pair<int,int>pointpair = maxpoints.at(index);
+       // maxbotrow=pointpair.first;
+        //maxbotlist=pointpair.second;
         game->gameMap[maxbotrow][maxbotlist]=-1;
         game->player=1;
 }
@@ -449,22 +474,23 @@ void MainWindow::receive0()
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+void MainWindow::on_actionRegret_triggered()
+{
+    if(game->gametype==1)
+    {
+        game->gameMap[row][list]=0;
+        if(game->player==1)
+            game->player=0;
+        else
+        {
+            game->player=1;
+        }
+        update();
+    }
+    else if(game->gametype==0)
+    {
+         game->gameMap[maxbotrow][maxbotlist]=0;
+         game->gameMap[row][list]=0;
+         update();
+    }
+}

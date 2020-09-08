@@ -25,10 +25,14 @@ private slots:
     void receive1();
     void receive0();
 
+    void on_actionRegret_triggered();
+
 private:
     Ui::MainWindow *ui;
     int rowpos;//行
     int listpos;//列
+    int row;
+    int list;
     gamestatics *game;
     int maxbotrow;
     int maxbotlist;

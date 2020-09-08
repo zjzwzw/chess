@@ -24,6 +24,8 @@ private slots:
 
     void reshow();
 
+    void on_pushButton_clicked();
+
 signals:
     void showmain1();
     void showmain0();

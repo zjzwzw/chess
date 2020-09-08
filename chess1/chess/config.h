@@ -7,6 +7,8 @@
 #define MarkSize 6//落子标记边长
 #define BlockSize 40//格子大小
 #define Positon 20//模糊距离上限
+#define AI_THINK_TIME 700//AI思考时间
+
 
 
 #endif // CONFIG_H

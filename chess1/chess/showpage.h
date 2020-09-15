@@ -26,9 +26,12 @@ private slots:
 
     void on_pushButton_clicked();
 
+    void on_eve_clicked();
+
 signals:
     void showmain1();
     void showmain0();
+    void showmain_1();
 
 private:
     Ui::showpage *ui;

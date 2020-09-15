@@ -19,13 +19,19 @@ public:
     void paintEvent(QPaintEvent *e);
     void mouseMoveEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
-    void calculatescore ();
+
+     void timerEvent(QTimerEvent *e);
 
 private slots:
     void receive1();
     void receive0();
-
+    void receive_1();
+    void AIPlay ();
     void on_actionRegret_triggered();
+
+
+
+
 
 private:
     Ui::MainWindow *ui;

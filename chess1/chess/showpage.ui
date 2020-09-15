@@ -98,6 +98,22 @@
      <string>?</string>
     </property>
    </widget>
+   <widget class="QPushButton" name="eve">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>600</y>
+      <width>93</width>
+      <height>28</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">font: 9pt &quot;华文彩云&quot;;</string>
+    </property>
+    <property name="text">
+     <string>机机对战</string>
+    </property>
+   </widget>
   </widget>
   <zorder>widget</zorder>
   <zorder>pvp</zorder>

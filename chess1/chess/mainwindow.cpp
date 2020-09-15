@@ -9,9 +9,11 @@
 #include <QSound>
 #include <QPushButton>
 #include <QString>
+#include "showpage.h"
 #include <QTimer>
 #include <time.h>
 #include <stdlib.h>
+
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -30,7 +32,7 @@ MainWindow::~MainWindow()
 {
     delete ui;
 }
-void MainWindow::initGame()
+void MainWindow::initGame()//初始化游戏数据
 {
     game = new gamestatics;//创建新游戏数据
     for(int i=0;i<BoardSize+1;i++)//初始化棋盘数组.Ai得分数组
@@ -42,7 +44,7 @@ void MainWindow::initGame()
     game->player=1;//先手黑棋
 
 }
-void MainWindow::paintEvent(QPaintEvent *e)
+void MainWindow::paintEvent(QPaintEvent *e)//绘画事件
 {
     QPainter painter(this);//绘制棋盘
     painter.setRenderHint(QPainter::Antialiasing,true);//抗锯齿
@@ -50,7 +52,7 @@ void MainWindow::paintEvent(QPaintEvent *e)
     brush.setColor(QColor("#EEC085"));//背景颜色
     brush.setStyle(Qt::SolidPattern);
     painter.setBrush(brush);
-    painter.drawRect(0,0,Margin_*2 + BlockSize *BoardSize,Margin_*2 + BlockSize *BoardSize);
+    painter.drawRect(0,0,Margin_*2 + BlockSize *BoardSize,Margin_*2 + BlockSize *BoardSize);//填充画布颜色
     brush.setColor(Qt::black);//中间黑点
     painter.setBrush(brush);
     painter.drawRect(Margin_+BlockSize *BoardSize/2-5,Margin_+BlockSize *BoardSize/2-5,10,10);
@@ -61,6 +63,7 @@ void MainWindow::paintEvent(QPaintEvent *e)
         painter.drawLine(Margin_+BlockSize*i,Margin_,Margin_+BlockSize*i,height()-Margin_);// 竖线
         painter.drawLine(Margin_,Margin_+BlockSize*i,width()-Margin_,Margin_+BlockSize*i);//横线
     }
+
     //绘制圆点,白棋白点，黑棋黑点
     if(game->player==1)
     {
@@ -75,7 +78,7 @@ void MainWindow::paintEvent(QPaintEvent *e)
         painter.drawEllipse(rowpos-5,listpos-5,10,10);
     }
 
-    //绘制棋子
+    //绘制棋子,遍历整个棋盘的点
     for(int i=0;i<BoardSize+1;i++)
         for(int j=0;j<BoardSize+1;j++)
         {
@@ -84,8 +87,6 @@ void MainWindow::paintEvent(QPaintEvent *e)
                 brush.setColor(Qt::black);
                 painter.setBrush(brush);
                 painter.drawEllipse(QPoint(Margin_+i*BlockSize,Margin_+j*BlockSize),ChessRadius,ChessRadius);
-
-
             }
             else if(game->gameMap[i][j]==-1)
             {
@@ -99,15 +100,17 @@ void MainWindow::paintEvent(QPaintEvent *e)
 
 
 }
-void MainWindow::mouseMoveEvent(QMouseEvent *e)
+void MainWindow::mouseMoveEvent(QMouseEvent *e)//鼠标追踪
 {
     //实现鼠标和十字交叉处模糊距离的判断
 
     int x=e->x();
     int y=e->y();
 
-    int list = (x-Margin_)/BlockSize;
-    int row = (y-Margin_)/BlockSize;
+    int list = (x-Margin_)/BlockSize;//列
+    int row = (y-Margin_)/BlockSize;//行
+
+    //记鼠标所在方格左上角点为标记点，计算四个点和鼠标所在位置的距离大小
     int rowlenth = Margin_ + list*BlockSize;
     int listlenth = Margin_+ row * BlockSize;
     if(sqrt((x-rowlenth)*(x-rowlenth)+(y-listlenth)*(y-listlenth))<Positon)
@@ -134,13 +137,13 @@ void MainWindow::mouseMoveEvent(QMouseEvent *e)
     update();
 }
 
-void MainWindow::mouseReleaseEvent(QMouseEvent *e)
+void MainWindow::mouseReleaseEvent(QMouseEvent *e)//下棋
 {
     row=(rowpos-Margin_)/BlockSize;
     list=(listpos-Margin_)/BlockSize;
-    int x=(rowpos-Margin_)/BlockSize;
+    int x=(rowpos-Margin_)/BlockSize;//放置棋子的坐标位置
     int y=(listpos-Margin_)/BlockSize;
-    if(game->gameMap[x][y]==0)
+    if(game->gameMap[x][y]==0)//该位置没有棋子
         {
             if(game->player==1&&game->gametype==1)
                 {
@@ -170,11 +173,14 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
                 {
                      case 1:  break;
                 case 0: {
-                    calculatescore();x=maxbotrow;y=maxbotlist;update();break;}
-
+                    //QTimer::singleShot(700,this,SLOT(calculatescore()));
+                    AIPlay();
+                    game->gameMap[maxbotrow][maxbotlist]=-1;
+                    game->player=1;x=maxbotrow;y=maxbotlist;update();break;}
                 }
             }
-            if(game->iswin(x,y))
+
+            if(game->iswin(x,y)&&game->gametype!=-1)
             {
                 update();
                 setEnabled(false);
@@ -321,7 +327,8 @@ void MainWindow::mouseReleaseEvent(QMouseEvent *e)
     }
 }
 
-void MainWindow::calculatescore()
+
+void MainWindow::AIPlay()//计算人机下棋评分
 {
 
         for(int row=0;row<BoardSize+1;row++)
@@ -350,9 +357,9 @@ void MainWindow::calculatescore()
                                     {
                                         emptyNum++;
                                         break;
-
                                     }
-                                    else {
+                                    else
+                                    {
                                         break;
                                     }
                                 if(personNum==1)
@@ -433,7 +440,7 @@ void MainWindow::calculatescore()
             }
         maxbotrow=0;
         maxbotlist=0;
-        //std::vector<std::pair<int,int>> maxpoints;
+        std::vector<std::pair<int,int>> max;
         for(int i=0;i<BoardSize+1;i++)
             for(int j=0;j<BoardSize+1;j++)
             {
@@ -441,27 +448,27 @@ void MainWindow::calculatescore()
                 {
                 if(game->scoreMap[i][j]>game->scoreMap[maxbotrow][maxbotlist])
                 {
-                   // maxpoints.clear();
+                    max.clear();//清空容器
                     maxbotrow=i;
                     maxbotlist=j;
-                    //maxpoints.push_back(std::make_pair(maxbotrow,maxbotlist));
+                    max.push_back(std::make_pair(maxbotrow,maxbotlist));
                 }
                 else if(game->scoreMap[i][j]==game->scoreMap[maxbotrow][maxbotlist])
                 {
-                    //maxpoints.push_back(std::make_pair(i,j));
+                    max.push_back(std::make_pair(i,j));
                 }
                 }
             }
-       // srand((unsigned)time(0));
-       // int index=rand()%maxpoints.size();
-        //std::pair<int,int>pointpair = maxpoints.at(index);
-       // maxbotrow=pointpair.first;
-        //maxbotlist=pointpair.second;
-        game->gameMap[maxbotrow][maxbotlist]=-1;
-        game->player=1;
+        srand((unsigned)time(0));
+        int index=rand()%max.size();
+        std::pair<int,int>maxpoint = max.at(index);
+        maxbotrow=maxpoint.first;
+        maxbotlist=maxpoint.second;
+
+
 }
 
-void MainWindow::receive1()
+void MainWindow::receive1()//接收主界面信号，展示游戏界面
 {
     this->show();
     game->gametype=1;
@@ -473,10 +480,113 @@ void MainWindow::receive0()
     game->gametype=0;
 }
 
-
-void MainWindow::on_actionRegret_triggered()
+void MainWindow::receive_1()
 {
-    if(game->gametype==1)
+    this->show();
+    game->gametype=-1;
+    game->gameMap[BoardSize/2][BoardSize/2]=1;
+    game->player=0;
+    maxbotrow=BoardSize/2;
+    maxbotlist=BoardSize/2;
+    update();
+    this->startTimer(700);
+}
+
+void MainWindow::timerEvent(QTimerEvent *e)//人机自动下棋
+{
+    if(game->gametype==-1)
+    {
+        if(game->player==0&&!game->iswin(maxbotrow,maxbotlist))
+        {
+            AIPlay();
+            game->gameMap[maxbotrow][maxbotlist]=-1;
+            QSound::play("://sound.wav");
+            update();
+            game->player=1;
+        }
+        else if(game->player==1&&!game->iswin(maxbotrow,maxbotlist))
+        {
+            AIPlay();
+            game->gameMap[maxbotrow][maxbotlist]=1;
+            QSound::play("://sound.wav");
+            update();
+            game->player=0;
+        }
+        if(game->iswin(maxbotrow,maxbotlist))
+        {
+            update();
+            setEnabled(false);
+            if(game->player==1)
+            {
+                QPushButton *retry=new QPushButton("返回主菜单");
+                QPushButton *close=new QPushButton("退出游戏");
+                QMessageBox *box = new QMessageBox;
+
+                box->setWindowTitle("win");
+                box->setText("白棋胜利");
+                box->addButton(retry,QMessageBox::AcceptRole);//枚举类型
+                box->addButton(close,QMessageBox::RejectRole);
+                box->show();
+                box->exec();//等待用户操作
+                if(box->clickedButton()==close)
+                {
+                    this->close();
+                }
+                else
+                {
+                    delete game;
+                    this->close();
+                    emit signal();
+                    initGame();
+                    setEnabled(true);
+                }
+            }
+            else if (game->player==0)
+            {
+                QPushButton *retry=new QPushButton("返回主菜单");
+                QPushButton *close=new QPushButton("退出游戏");
+                QMessageBox *box = new QMessageBox;
+
+                box->setWindowTitle("win");
+                box->setText("黑棋胜利");
+                box->addButton(retry,QMessageBox::AcceptRole);//枚举类型
+                box->addButton(close,QMessageBox::RejectRole);
+                box->show();
+                box->exec();//等待用户操作
+                if(box->clickedButton()==close)
+                {
+                    this->close();
+                }
+                else
+                {
+                    delete  game;
+                    this->close();
+                    emit signal();
+                    initGame();
+                    setEnabled(true);
+                }
+            }
+        }
+    }
+
+}
+
+void MainWindow::on_actionRegret_triggered()//悔棋按钮
+{
+    bool havechess = false;
+    for(int i=0;i<BoardSize+1;i++)
+        for(int j=0;j<BoardSize+1;j++)
+        {
+            if(game->gameMap[i][j]!=0)
+              {
+                havechess = true;
+                break;
+            }
+
+        }
+    if(havechess==true)
+    {
+        if(game->gametype==1)
     {
         game->gameMap[row][list]=0;
         if(game->player==1)
@@ -493,4 +603,13 @@ void MainWindow::on_actionRegret_triggered()
          game->gameMap[row][list]=0;
          update();
     }
+    }
+    else{
+        QMessageBox *box = new QMessageBox;
+        box->setWindowTitle("警告!");
+        box->setText("害没下棋呢就想悔棋?");
+        box->show();
+        box->exec();
+    }
 }
+

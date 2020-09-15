@@ -21,6 +21,10 @@ showpage::showpage(QWidget *parent) :
                            "QPushButton::hover{border-image:url(://pt2__.png);}"
                        "QPushButton::pressed{border-image:url(://pt2_.png);}"
                            );
+    ui->eve->setStyleSheet("QPushButton{border-image:url(://pt2.png);}"
+                           "QPushButton::hover{border-image:url(://pt2__.png);}"
+                       "QPushButton::pressed{border-image:url(://pt2_.png);}"
+                           );
     this->setWindowFlags(Qt::Dialog|Qt::WindowCloseButtonHint);//关闭右上角问号
 
 
@@ -50,15 +54,19 @@ void showpage::reshow()
     this->show();
 }
 
-
-
-
-
-void showpage::on_pushButton_clicked()
+void showpage::on_pushButton_clicked()//帮助按钮
 {
     QMessageBox Q;
     Q.setText("1.对峙双方谁的六个棋子先连在一条线即为胜者\n."
-              "2.先手黑棋应当避免在比赛内出现四四禁手，五五禁手情况，否则就会不小心输掉比赛.");
+              "2.先手黑棋应当避免在比赛内出现四四禁手，五五禁手情况，否则就会不小心输掉比赛\n."
+              "3.人机对人机需要按A键自动下棋.");
     Q.setWindowTitle("规则");
     Q.exec();
+}
+
+void showpage::on_eve_clicked()
+{
+    this->hide();
+    emit showmain_1();
+    QSound::play(":/sound.wav");
 }

@@ -52,6 +52,8 @@ int gamestatics::f1_(int x, int y)//竖活五
     int i;
     for(i=0;i<6;i++)
     {
+
+        //连且有空位
         if(y-i>=0&&y+5-i<=BoardSize&&
                 gameMap[x][y-i]!=0&&
                 ((gameMap[x][y-1-i]==0&&
